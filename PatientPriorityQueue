@@ -1,0 +1,139 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+package patientpriorityqueue;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class PatientPriorityQueue {
+    private List<Patient> heap = new ArrayList<>();
+
+    /**
+     * Retrieves and removes the patient with the highest priority from the priority queue.
+     * @return The patient with the highest priority, or null if the queue is empty
+     */
+    public Patient nextPatient() {
+    // Check if the heap is empty to avoid errors
+    if (heap.isEmpty()) return null;
+    
+    // Store the patient with the highest priority (at the root of the heap)
+    Patient highest = heap.get(0);
+    
+    // If there's only one element, just remove it and return
+    if (heap.size() == 1) {
+        heap.remove(0);
+        return highest;
+    }
+    
+    // Replace the root with the last element in the heap
+    // This maintains the complete binary tree property of the heap
+    heap.set(0, heap.remove(heap.size() - 1));
+    
+    // Restore the max-heap property by moving the new root element
+    // to its correct position in the heap
+    heapifyDown(0);
+    
+    // Return the patient with the highest priority
+    return highest;
+}
+
+    /**
+     * Restores the max-heap property by moving an element down the heap
+     * until it is in its correct position.
+   */
+    private void heapifyDown(int index) {
+        // Calculate the indices of the left and right children
+        int left = 2 * index + 1;
+        int right = 2 * index + 2;
+        
+        // Assume the current element is the largest
+        int largest = index;
+
+        // Check if the left child exists and has a higher priority than the current largest
+        if (left < heap.size() && heap.get(left).getPriority() > heap.get(largest).getPriority()) {
+            largest = left;
+        }
+        
+        // Check if the right child exists and has a higher priority than the current largest
+        if (right < heap.size() && heap.get(right).getPriority() > heap.get(largest).getPriority()) {
+            largest = right;
+        }
+        
+        // If the largest element is not the current element, swap them
+        // and continue heapifying down from the new position
+        if (largest != index) {
+            Collections.swap(heap, index, largest);
+            heapifyDown(largest);
+        }
+    }
+    
+    // Additional methods for the PatientPriorityQueue class
+    public void addPatient(Patient patient) {
+        heap.add(patient);
+        heapifyUp(heap.size() - 1);
+    }
+    
+    private void heapifyUp(int index) {
+        while (index > 0) {
+            int parent = (index - 1) / 2;
+            if (heap.get(index).getPriority() <= heap.get(parent).getPriority()) {
+                break;
+            }
+            Collections.swap(heap, index, parent);
+            index = parent;
+        }
+    }
+    
+    public boolean isEmpty() {
+        return heap.isEmpty();
+    }
+    
+    public int size() {
+        return heap.size();
+    }
+    
+    // Assuming a Patient class exists with a getPriority() method
+    static class Patient {
+        private int priority;
+        private String name;
+        
+        public Patient(String name, int priority) {
+            this.name = name;
+            this.priority = priority;
+        }
+        
+        public int getPriority() {
+            return priority;
+        }
+        
+        public String getName() {
+            return name;
+        }
+        
+        @Override
+        public String toString() {
+            return "Patient{name='" + name + "', priority=" + priority + "}";
+        }
+    }
+    
+    public static void main(String[] args) {
+        PatientPriorityQueue queue = new PatientPriorityQueue();
+        
+        // Add patients with different priorities
+        queue.addPatient(new Patient("Alice", 5));
+        queue.addPatient(new Patient("Bob", 7));
+        queue.addPatient(new Patient("Carol", 2));
+        queue.addPatient(new Patient("Eve", 6));
+        queue.addPatient(new Patient("Dave", 10));
+        
+        // Process patients in priority order
+        System.out.println("Processing patients in priority order:");
+        while (!queue.isEmpty()) {
+            Patient patient = queue.nextPatient();
+            System.out.println(patient);
+        }
+    }
+}
